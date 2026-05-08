@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexOS — Secure. Modern. Double-sided.</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Barlow:ital,wght@0,200;0,300;0,400;0,600;1,200&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0d0d0d;
+    --panel: #121212;
+    --border: #1e1e1e;
+    --orange: #e8630a;
+    --orange-dim: #a8450a;
+    --orange-glow: rgba(232, 99, 10, 0.15);
+    --red: #c0392b;
+    --red-dim: #8b2018;
+    --gray: #888;
+    --gray-light: #aaa;
+    --white: #f0f0f0;
+    --text: #c8c8c8;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Rajdhani', sans-serif;
+    --body: 'Barlow', sans-serif;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--body);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 60px;
+    height: 64px;
+    background: rgba(8,8,8,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo .n-mark {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .nav-logo .n-mark img {
+    width: 32px; height: 32px;
+    object-fit: contain;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--orange); }
+
+  .nav-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--orange-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding-top: 64px;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,99,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,99,10,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,99,10,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 0 40px;
+  }
+
+  .hero-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .hero-badge::before, .hero-badge::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--orange-dim);
+  }
+
+  .hero-logo {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .big-n {
+    width: 140px; height: 140px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    animation: n-flicker 8s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(232,99,10,0.5));
+  }
+
+  .big-n img {
+    width: 130px; height: 130px;
+    object-fit: contain;
+  }
+
+  @keyframes n-flicker {
+    0%, 95%, 100% { box-shadow: 0 0 30px rgba(232,99,10,0.2), inset 0 0 30px rgba(232,99,10,0.05); }
+    96% { box-shadow: 0 0 10px rgba(232,99,10,0.1), inset 0 0 10px rgba(232,99,10,0.02); }
+    97% { box-shadow: 0 0 30px rgba(232,99,10,0.2), inset 0 0 30px rgba(232,99,10,0.05); }
+    98% { box-shadow: 0 0 5px rgba(232,99,10,0.05); }
+    99% { box-shadow: 0 0 30px rgba(232,99,10,0.2), inset 0 0 30px rgba(232,99,10,0.05); }
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(56px, 10vw, 96px);
+    font-weight: 700;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .hero-sub span { color: var(--orange); }
+
+  .hero-desc {
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--gray-light);
+    max-width: 600px;
+    margin: 0 auto 56px;
+    font-style: italic;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    background: var(--orange);
+    color: var(--black);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary:hover {
+    background: #ff7a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,99,10,0.4);
+  }
+
+  .btn-outline {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    background: transparent;
+    color: var(--gray-light);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    transform: translateY(-2px);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--border);
+    text-transform: uppercase;
+    animation: scroll-hint 3s ease-in-out infinite;
+  }
+
+  .hero-scroll::after {
+    content: '';
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--border), transparent);
+  }
+
+  @keyframes scroll-hint {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+  }
+
+  /* SECTIONS */
+  section { padding: 120px 60px; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--orange);
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .section-intro {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--gray);
+    max-width: 560px;
+    font-weight: 300;
+  }
+
+  /* PHILOSOPHY */
+  .philosophy {
+    background: var(--deep);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .philosophy-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .pillars {
+    display: grid;
+    gap: 2px;
+    margin-top: 0;
+  }
+
+  .pillar {
+    padding: 24px 28px;
+    background: var(--panel);
+    border-left: 3px solid transparent;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pillar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(232,99,10,0.03) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .pillar:hover {
+    border-left-color: var(--orange);
+  }
+
+  .pillar:hover::before { opacity: 1; }
+
+  .pillar-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .pillar-text {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .pillar-icon {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--orange);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* ARCHITECTURE */
+  .architecture { max-width: 1200px; margin: 0 auto; }
+
+  .arch-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+
+  .boot-chain {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .boot-chain::before {
+    content: 'BOOT PIPELINE';
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--border);
+  }
+
+  .boot-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 12px;
+  }
+
+  .boot-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .boot-step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--orange-dim);
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .step-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--white);
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: var(--gray);
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .step-arrow {
+    position: absolute;
+    left: 48px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--border);
+  }
+
+  .arch-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .arch-card {
+    background: var(--panel);
+    padding: 32px 28px;
+    border-top: 2px solid transparent;
+    transition: border-color 0.3s;
+    position: relative;
+  }
+
+  .arch-card:hover { border-top-color: var(--orange); }
+
+  .arch-card.red:hover { border-top-color: var(--red); }
+
+  .arch-card-icon {
+    font-family: var(--mono);
+    font-size: 22px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .arch-card-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .arch-card-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--gray);
+  }
+
+  .arch-card-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .tag-orange { border-color: var(--orange-dim); color: var(--orange); }
+  .tag-red { border-color: var(--red-dim); color: var(--red); }
+
+  /* PHASES */
+  .phases {
+    background: var(--deep);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phases-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .phases-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    position: relative;
+  }
+
+  .phase-card {
+    background: var(--panel);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phase-card.active {
+    background: #0f1008;
+  }
+
+  .phase-card.active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(232,99,10,0.07) 0%, transparent 70%);
+  }
+
+  .phase-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .phase-card.active .phase-num { color: var(--orange); }
+
+  .phase-title {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-light);
+    margin-bottom: 10px;
+  }
+
+  .phase-card.active .phase-title { color: var(--white); }
+
+  .phase-text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--gray);
+  }
+
+  .phase-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .phase-status.done { color: #4a9a4a; }
+  .phase-status.active-s { color: var(--orange); }
+  .phase-status.upcoming { color: var(--gray); }
+
+  .phase-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .phase-status.upcoming::before {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+
+  /* FEATURES */
+  .features { max-width: 1200px; margin: 0 auto; }
+
+  .features-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+
+  .feature-item {
+    background: var(--panel);
+    padding: 36px 32px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    transition: background 0.3s;
+  }
+
+  .feature-item:hover { background: #161616; }
+
+  .feature-icon-wrap {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .feature-content-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .feature-content-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--gray);
+  }
+
+  /* BESC */
+  .besc-section {
+    background: var(--deep);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .besc-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .besc-screen {
+    background: #0a0aff;
+    padding: 40px;
+    position: relative;
+    font-family: var(--mono);
+    aspect-ratio: 4/3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 0 60px rgba(10,10,255,0.15), 0 0 120px rgba(10,10,255,0.05);
+  }
+
+  .besc-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.1) 2px,
+      rgba(0,0,0,0.1) 4px
+    );
+    pointer-events: none;
+  }
+
+  .besc-emoji {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .besc-title {
+    font-size: 13px;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .besc-code {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin: 20px 0 12px;
+    letter-spacing: 1px;
+  }
+
+  .besc-code span { color: #fff; }
+
+  .besc-hint {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  /* LICENSING */
+  .licensing { max-width: 1200px; margin: 0 auto; }
+
+  .licensing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 48px;
+  }
+
+  .license-tier {
+    background: var(--panel);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .license-tier.pro {
+    background: #0f0d0a;
+  }
+
+  .license-tier.pro::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--red));
+  }
+
+  .tier-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .tier-name {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  .tier-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tier-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--gray-light);
+  }
+
+  .tier-features li::before {
+    content: '→';
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--orange);
+    flex-shrink: 0;
+  }
+
+  .license-tier.free .tier-features li::before { color: var(--gray); content: '—'; }
+
+  .cmd-example {
+    margin-top: 28px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray);
+  }
+
+  .cmd-example .prompt { color: var(--orange); }
+  .cmd-example .cmd { color: var(--white); }
+
+  /* ETA */
+  .eta-section {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eta-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 80px;
+  }
+
+  .eta-content { flex: 1; }
+
+  .eta-year {
+    font-family: var(--display);
+    font-size: clamp(80px, 15vw, 160px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: -4px;
+    opacity: 0.08;
+    position: absolute;
+    right: 60px;
+    pointer-events: none;
+  }
+
+  .eta-wrapper {
+    position: relative;
+  }
+
+  .eta-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+  }
+
+  .stat-item { }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+  }
+
+  .footer-logo {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .footer-slogan {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--border);
+    text-align: center;
+  }
+
+  .footer-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--border);
+    text-align: right;
+  }
+
+  /* DIVIDERS */
+  .divider-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 60px 0;
+  }
+
+  .nav-links a.nav-support {
+    color: var(--orange);
+    border: 1px solid var(--orange-dim);
+    padding: 5px 14px;
+    transition: all 0.2s;
+  }
+
+  .nav-links a.nav-support:hover {
+    background: var(--orange);
+    color: var(--black);
+    border-color: var(--orange);
+  }
+
+  /* FUNDING STANDALONE SECTION */
+  .funding-section {
+    background: var(--deep);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 120px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .funding-section::before {
+    content: '♥';
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 260px;
+    color: var(--red);
+    opacity: 0.04;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .funding-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .funding-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 56px;
+  }
+
+  @media (max-width: 900px) {
+    .funding-header { grid-template-columns: 1fr; gap: 32px; }
+    .funding-options { grid-template-columns: 1fr !important; }
+    .funding-section::before { display: none; }
+  }
+
+
+  .funding-honest {
+    background: var(--panel);
+    border-left: 3px solid var(--orange-dim);
+    padding: 20px 24px;
+    margin-bottom: 48px;
+    max-width: 680px;
+  }
+
+  .funding-honest p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--gray-light);
+    font-style: italic;
+  }
+
+  .funding-honest .sig {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 10px;
+    font-style: normal;
+  }
+
+  .funding-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 40px;
+  }
+
+  .funding-card {
+    background: var(--panel);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .funding-card:hover { background: #161616; }
+
+  .funding-card-amount {
+    font-family: var(--display);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .funding-card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .funding-card-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--gray);
+    margin-bottom: 24px;
+  }
+
+  .btn-donate {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: 1px solid var(--border);
+    color: var(--gray-light);
+    text-decoration: none;
+    transition: all 0.2s;
+    background: transparent;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-donate:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .btn-donate.featured {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--black);
+    font-weight: 600;
+  }
+
+  .btn-donate.featured:hover {
+    background: #ff7a1a;
+    border-color: #ff7a1a;
+    color: var(--black);
+  }
+
+  .funding-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--gray);
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .funding-note::before {
+    content: '♥';
+    color: var(--red);
+    font-size: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .funding-options { grid-template-columns: 1fr; }
+    .tab-btn { padding: 12px 16px; font-size: 10px; }
+  }
+
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--orange-dim); }
+
+  /* FADE IN ANIMATIONS */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    .philosophy-inner, .phases-header, .features-header,
+    .besc-inner, .arch-header { grid-template-columns: 1fr; gap: 40px; }
+    .arch-cards { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .licensing-grid { grid-template-columns: 1fr; }
+    .eta-inner { flex-direction: column; gap: 40px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+    .eta-year { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="n-mark"><img src="nexoslogo.png" alt="NexOS Logo"></div>
+    NexOS
+  </div>
+  <ul class="nav-links">
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#licensing">Licensing</a></li>
+    <li><a href="#funding" class="nav-support">♥ Support</a></li>
+  </ul>
+  <div class="nav-status">In Development — ETA 2027</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">Linux-kernel-based OS</div>
+    <div class="hero-logo">
+      <div class="big-n"><img src="nexoslogo.png" alt="NexOS Logo"></div>
+    </div>
+    <h1 class="hero-title">NexOS</h1>
+    <p class="hero-sub"><span>Secure.</span> Modern. <span>Double-sided.</span></p>
+    <p class="hero-desc">
+      A new operating system built from the ground up — secure by design, framebuffer-native, and built for people who care about what runs beneath their fingers.
+    </p>
+    <div class="hero-ctas">
+      <a href="#roadmap" class="btn-primary">View Roadmap</a>
+      <a href="#architecture" class="btn-outline">Architecture</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="philosophy" id="philosophy">
+  <div class="philosophy-inner">
+    <div class="fade-in">
+      <div class="section-label">Core Philosophy</div>
+      <h2 class="section-title">Built with purpose.<br>Not compromise.</h2>
+      <p class="section-intro">
+        NexOS doesn't exist to replicate existing systems. It's an attempt to build something lean, principled, and visually coherent — from bootloader to desktop — without dragging legacy baggage along for the ride.
+      </p>
+    </div>
+    <div class="pillars fade-in">
+      <div class="pillar">
+        <div class="pillar-icon">01 / SECURITY</div>
+        <div class="pillar-title">Secure by Design</div>
+        <div class="pillar-text">Security isn't bolted on as an afterthought. From the login system to the application compiler, every layer is built with isolation and trust in mind.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">02 / INTERFACE</div>
+        <div class="pillar-title">Modern & Polished</div>
+        <div class="pillar-text">A framebuffer-native graphical shell with deliberate visual design — no X11, no Wayland, no bloated compositor stack. Just direct, fast rendering.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">03 / USABILITY</div>
+        <div class="pillar-title">Developer Friendly</div>
+        <div class="pillar-text">Powerful tools for developers without overwhelming regular users. Pro licensing unlocks a native compiler, Linux package support, and system-level dev tools.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">04 / EFFICIENCY</div>
+        <div class="pillar-title">Lightweight Core</div>
+        <div class="pillar-text">Linux kernel 6.18.3, BusyBox, a minimal initramfs — and nothing more than what's needed. The system stays fast because it stays focused.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" style="padding: 120px 60px;">
+  <div class="architecture fade-in">
+    <div class="arch-header">
+      <div>
+        <div class="section-label">Architecture</div>
+        <h2 class="section-title">Minimal stack.<br>Maximum intent.</h2>
+      </div>
+      <p class="section-intro">
+        NexOS replaces the traditional desktop stack entirely. No display servers, no compositors. The GUI renders directly to <code style="font-family: var(--mono); color: var(--orange); font-size: 13px;">/dev/fb0</code> — the Linux framebuffer. Graphical frames are loaded in batches, memory is managed carefully, and the boot experience is treated as a first-class design surface.
+      </p>
+    </div>
+
+    <div class="boot-chain fade-in" style="margin-bottom: 2px;">
+      <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--orange); margin-bottom: 20px; text-transform: uppercase;">Boot Pipeline</div>
+      <div class="boot-steps">
+        <div class="boot-step">
+          <span class="step-num">01</span>
+          <span class="step-name">BIOS / UEFI</span>
+          <span class="step-desc">Firmware initialization</span>
+        </div>
+        <div class="boot-step">
+          <span class="step-num">02</span>
+          <span class="step-name">Linux Kernel 6.18.3</span>
+          <span class="step-desc">Custom compiled</span>
+        </div>
+        <div class="boot-step">
+          <span class="step-num">03</span>
+          <span class="step-name">Initramfs</span>
+          <span class="step-desc">Minimal root FS</span>
+        </div>
+        <div class="boot-step">
+          <span class="step-num">04</span>
+          <span class="step-name">BusyBox → /init</span>
+          <span class="step-desc">Fallback shell / FER Mode</span>
+        </div>
+        <div class="boot-step">
+          <span class="step-num">05</span>
+          <span class="step-name">Boot Splash</span>
+          <span class="step-desc">Animated N logo · ~600 WebP frames</span>
+        </div>
+        <div class="boot-step">
+          <span class="step-num">06</span>
+          <span class="step-name">NexOS Desktop</span>
+          <span class="step-desc">Framebuffer GUI · /dev/fb0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-cards fade-in">
+      <div class="arch-card">
+        <span class="arch-card-icon">🖥</span>
+        <div class="arch-card-title">Framebuffer GUI</div>
+        <div class="arch-card-text">Direct rendering to /dev/fb0. No display server. The graphical shell renders image frames and lightweight logic — no heavy compositor in sight.</div>
+        <span class="arch-card-tag tag-orange">In Design</span>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-icon">💥</span>
+        <div class="arch-card-title">FER Mode</div>
+        <div class="arch-card-text">Fatal Error Recovery — BusyBox reborn as a proper recovery layer. Emergency shell access, filesystem repair, and diagnostics when things go wrong.</div>
+        <span class="arch-card-tag">Planned — Phase 4</span>
+      </div>
+      <div class="arch-card red">
+        <span class="arch-card-icon">🔵</span>
+        <div class="arch-card-title">BESC</div>
+        <div class="arch-card-text">Blue Error Code Screen. Fatal boot or graphical errors trigger BESC — a structured, controlled failure screen. Enter to reboot. Shift+Enter for recovery.</div>
+        <span class="arch-card-tag tag-red">Planned — Phase 4</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="phases" id="roadmap">
+  <div class="phases-inner">
+    <div class="phases-header fade-in">
+      <div>
+        <div class="section-label">Development Roadmap</div>
+        <h2 class="section-title">Six phases.<br>One vision.</h2>
+      </div>
+      <p class="section-intro">
+        NexOS is a long-term personal project built methodically, phase by phase. Each milestone is a genuine functional step — no vaporware, no rushed releases. Target: <strong style="color: var(--white); font-weight: 400;">2027</strong>.
+      </p>
+    </div>
+    <div class="timeline fade-in">
+      <div class="phase-card active">
+        <div class="phase-num">Phase 1 — Complete</div>
+        <div class="phase-title">Framebuffer Proof</div>
+        <div class="phase-text">Kernel compiled and booted in QEMU. BusyBox integrated. Functional minimal shell environment confirmed.</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase-card active">
+        <div class="phase-num">Phase 2 — In Progress</div>
+        <div class="phase-title">Animated Boot Splash</div>
+        <div class="phase-text">~600 WebP frames rendering the NexOS "N" logo. Batch loading (10 frames at a time) for memory efficiency. Stops on desktop ready.</div>
+        <div class="phase-status active-s">Active</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">Phase 3</div>
+        <div class="phase-title">Desktop & Taskbar</div>
+        <div class="phase-text">Background image, taskbar, Nex menu button, clock and status area. Initial build is intentionally minimal — no icons or file manager yet.</div>
+        <div class="phase-status upcoming">Upcoming</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">Phase 4</div>
+        <div class="phase-title">FER Mode + BESC</div>
+        <div class="phase-text">BusyBox evolves into Fatal Error Recovery. Blue Error Code Screen for fatal boot/graphics failures. Full recovery flow.</div>
+        <div class="phase-status upcoming">Upcoming</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">Phase 5</div>
+        <div class="phase-title">Login & Accounts</div>
+        <div class="phase-text">Proper user account and login system. Without this, the OS cannot fully honor its security philosophy — this phase is non-negotiable.</div>
+        <div class="phase-status upcoming">Upcoming</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">Phase 6</div>
+        <div class="phase-title">App System + Nex Menu</div>
+        <div class="phase-text">NexCompiler integration, .nex application runtime, Nex menu launcher, permission system, and cryptographic signing.</div>
+        <div class="phase-status upcoming">Upcoming</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="padding: 120px 60px;">
+  <div class="features fade-in">
+    <div class="features-header">
+      <div>
+        <div class="section-label">Planned Features</div>
+        <h2 class="section-title">What's coming<br>in NexOS.</h2>
+      </div>
+      <p class="section-intro">
+        Every feature in NexOS has a reason. Nothing ships because it's expected — everything ships because it earns its place.
+      </p>
+    </div>
+    <div class="features-grid fade-in">
+      <div class="feature-item">
+        <div class="feature-icon-wrap">🔐</div>
+        <div>
+          <div class="feature-content-title">NexCompiler</div>
+          <div class="feature-content-text">Custom .nex application compiler with explicit permissions, cryptographic signing, SHA-256 token system, and ownership-locked decompilation protection.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon-wrap">🎬</div>
+        <div>
+          <div class="feature-content-title">Boot Splash System</div>
+          <div class="feature-content-text">Pitch-black background, animated NexOS "N" logo in gray/orange/red. ~600 WebP frames batched in groups of 10 for efficient memory use.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon-wrap">🗂</div>
+        <div>
+          <div class="feature-content-title">Nex Menu</div>
+          <div class="feature-content-text">The central application launcher for NexOS. Clean, purposeful, and tightly integrated with the permission and licensing system.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon-wrap">🧱</div>
+        <div>
+          <div class="feature-content-title">System Firewall</div>
+          <div class="feature-content-text">System-level firewall available in NexOS Pro. Designed to complement the security-first architecture of the entire OS — not patched on top of it.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon-wrap">👤</div>
+        <div>
+          <div class="feature-content-title">Login & Accounts</div>
+          <div class="feature-content-text">Full user account and authentication system in Phase 5. Without it, the OS can protect the machine but not the user's personal environment — that's not acceptable.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon-wrap">🛠</div>
+        <div>
+          <div class="feature-content-title">Developer Tools</div>
+          <div class="feature-content-text">NexCompiler, Linux package support, and debug tools unlock with NexOS Pro. Built for serious development without inflating the base install.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BESC -->
+<section class="besc-section">
+  <div class="besc-inner">
+    <div class="fade-in">
+      <div class="section-label">Error Handling</div>
+      <h2 class="section-title">When things<br>go wrong.</h2>
+      <p class="section-intro" style="margin-bottom: 28px;">
+        NexOS handles failures deliberately. Fatal graphical or boot errors trigger the Blue Error Code Screen — a controlled, calm environment for the user. No panic. No cryptic kernel dumps.
+      </p>
+      <p class="section-intro">
+        BusyBox transitions into <strong style="color: var(--white); font-weight: 400;">FER Mode</strong> (Fatal Error Recovery) — giving advanced users emergency shell access, recovery tools, and filesystem diagnostics when the primary environment can't start.
+      </p>
+    </div>
+    <div class="fade-in">
+      <div class="besc-screen">
+        <div class="besc-emoji">:(</div>
+        <div class="besc-title">NexOS ran into a problem and needs<br>to restart. We're collecting some<br>error information.</div>
+        <div class="besc-code">Stop code: <span>NEXOS_BOOT_FAIL</span></div>
+        <div class="besc-hint">Press Enter to restart  |  Shift + Enter for recovery mode</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LICENSING -->
+<section id="licensing" style="padding: 120px 60px;">
+  <div class="licensing fade-in">
+    <div style="margin-bottom: 48px;">
+      <div class="section-label">Licensing</div>
+      <h2 class="section-title">Free at the core.<br>Pro at the edge.</h2>
+      <p class="section-intro" style="margin-top: 16px;">
+        NexOS ships with a solid base for everyone. Pro unlocks developer tools, the application compiler, package support, and personalization — activated with a single command.
+      </p>
+    </div>
+    <div class="licensing-grid fade-in">
+      <div class="license-tier free">
+        <div class="tier-label">Standard</div>
+        <div class="tier-name">NexOS</div>
+        <ul class="tier-features">
+          <li>Full desktop environment</li>
+          <li>Framebuffer GUI</li>
+          <li>Boot splash & Nex Menu</li>
+          <li>Login and account system</li>
+          <li>FER Mode & BESC</li>
+          <li>Core OS security</li>
+        </ul>
+      </div>
+      <div class="license-tier pro">
+        <div class="tier-label">Professional</div>
+        <div class="tier-name">NexOS<br>Pro</div>
+        <ul class="tier-features">
+          <li>Everything in standard</li>
+          <li>NexCompiler (.nex apps)</li>
+          <li>Linux package support</li>
+          <li>Developer & debug tools</li>
+          <li>System-level firewall</li>
+          <li>Personalization options</li>
+        </ul>
+        <div class="cmd-example">
+          <span class="prompt">nex$</span> <span class="cmd">lcsmgr --key "your-license-key"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDING -->
+<section class="funding-section" id="funding">
+  <div class="funding-inner">
+    <div class="funding-header fade-in">
+      <div>
+        <div class="section-label">Support the Project</div>
+        <h2 class="section-title">Built from<br>the heart.</h2>
+      </div>
+      <div class="funding-honest">
+        <p>
+          NexOS is a solo passion project. Realistically, most of the cost comes out of my own pocket — hardware, tooling, time. But if you believe in what this is becoming and want to chip in, that means a lot. No pressure, no perks, no tiers with fake Discord roles. Just genuine support for something being built the right way.
+        </p>
+        <div class="sig">— The NexOS Developer</div>
+      </div>
+    </div>
+
+    <div class="funding-options fade-in">
+      <div class="funding-card">
+        <div class="funding-card-amount">$5</div>
+        <div class="funding-card-label">Coffee</div>
+        <div class="funding-card-desc">Fuel for a late-night debugging session. Genuinely appreciated more than it sounds.</div>
+        <a href="#" class="btn-donate" onclick="handleDonate(5); return false;">Donate $5</a>
+      </div>
+      <div class="funding-card">
+        <div class="funding-card-amount">$20</div>
+        <div class="funding-card-label">Solid Support</div>
+        <div class="funding-card-desc">Covers a chunk of tooling or helps offset hardware costs. A real contribution to the build.</div>
+        <a href="#" class="btn-donate featured" onclick="handleDonate(20); return false;">Donate $20</a>
+      </div>
+      <div class="funding-card">
+        <div class="funding-card-amount">Any</div>
+        <div class="funding-card-label">Your Call</div>
+        <div class="funding-card-desc">Pick your own amount. Whatever feels right. Every bit goes directly toward building NexOS.</div>
+        <a href="#" class="btn-donate" onclick="handleDonate('custom'); return false;">Choose Amount</a>
+      </div>
+    </div>
+
+    <div class="funding-note fade-in">
+      All donations go directly toward development costs. NexOS itself remains free for everyone regardless.
+    </div>
+  </div>
+</section>
+
+<!-- ETA -->
+<section class="eta-section">
+  <div class="eta-wrapper" style="max-width: 1200px; margin: 0 auto; position: relative;">
+    <div class="eta-inner">
+      <div class="eta-content fade-in">
+        <div class="section-label">Current Status</div>
+        <h2 class="section-title">Where we are<br>right now.</h2>
+        <p class="section-intro">
+          NexOS boots. It runs a shell. It has a compiled kernel, a working initramfs, a defined GUI direction, and a full branding system. The foundation is real — now it's about building upward, deliberately.
+        </p>
+        <div class="eta-stats">
+          <div class="stat-item">
+            <div class="stat-num">6.18.3</div>
+            <div class="stat-label">Kernel Version</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">6</div>
+            <div class="stat-label">Dev Phases</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">~600</div>
+            <div class="stat-label">Boot Splash Frames</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">2027</div>
+            <div class="stat-label">Target Release</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="eta-year">2027</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NexOS</div>
+  <div class="footer-slogan">Secure. Modern. Double-sided.</div>
+  <div class="footer-note">In active development · Target 2027<br>Linux-kernel-based · No X11 · No Wayland</div>
+</footer>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Handle donate — replace with your actual payment link (Ko-fi, PayPal, GitHub Sponsors, etc.)
+  function handleDonate(amount) {
+    // TODO: replace with your link e.g. window.open('https://ko-fi.com/yourname', '_blank');
+    alert('Donation link coming soon!');
+  }
+
+
+  document.querySelectorAll('.pillar, .arch-card, .phase-card, .feature-item').forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 3) * 80}ms`;
+  });
+</script>
+</body>
+</html>
